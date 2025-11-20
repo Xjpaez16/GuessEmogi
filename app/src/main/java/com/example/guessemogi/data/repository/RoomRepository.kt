@@ -11,12 +11,10 @@ class RoomRepository {
     private val db = FirebaseDatabase.getInstance().reference
     private val roomsRef = db.child("rooms")
 
-    // ============================================================
-    // CREAR SALA (MODIFICADO - Req 5)
-    // ============================================================
+
     fun createRoom(roomId: String, host: Player, onComplete: (Boolean) -> Unit) {
 
-        // AÑADIDO: Asignar el primer emoji al host
+
         val emojis =  Constants.EMOJI_LIST.shuffled()
         val hostEmoji = emojis.first()
 
@@ -24,7 +22,7 @@ class RoomRepository {
             "uid" to host.uid,
             "name" to host.name,
             "status" to "alive",
-            "emojiAssigned" to hostEmoji // MODIFICADO (ya no es null)
+            "emojiAssigned" to hostEmoji
         )
 
         val roomData = mapOf(
@@ -34,7 +32,7 @@ class RoomRepository {
             "round" to 0,
             "turn" to host.uid,
             "hasStarted" to false,
-            "timerEnd" to 0L, // MODIFICADO: No iniciar timer hasta que empiece
+            "timerEnd" to 0L,
             "players" to mapOf(host.uid to hostMap)
         )
 
@@ -48,11 +46,9 @@ class RoomRepository {
             }
     }
 
-    // ============================================================
-    // LISTENER (Sin cambios)
-    // ============================================================
+
     fun listenRoom(roomId: String, onUpdate: (Room?) -> Unit): ValueEventListener {
-        // ... (sin cambios)
+
         val ref = roomsRef.child(roomId)
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -77,22 +73,6 @@ class RoomRepository {
         roomsRef.child(roomId).removeEventListener(listener)
     }
 
-    // ============================================================
-    // ASIGNAR EMOJIS A LOS VIVOS (ELIMINADO)
-    // ============================================================
-    // ELIMINADO: Ya no necesitamos esta función.
-    // createRoom asigna el primer emoji.
-    // joinRoom (en PlayerRepository) asigna los siguientes.
-    // advanceRound tiene su propia lógica de re-asignación.
-    /*
-    fun assignEmojis(roomId: String, emojis: List<String>, onComplete: (Boolean) -> Unit) {
-        ...
-    }
-    */
-
-    // ============================================================
-    // AVANZAR TURNO (Sin cambios)
-    // ============================================================
     fun advanceTurn(roomId: String, currentUid: String) {
         val ref = roomsRef.child(roomId)
 
@@ -102,26 +82,26 @@ class RoomRepository {
 
                 val players = roomMap["players"] as? Map<String, Any> ?: return Transaction.abort()
 
-                // 1. Obtener jugadores vivos ordenados (importante para la secuencia)
+
                 val alivePlayers = players.values
                     .filter { (it as Map<*, *>)["status"] == "alive" }
                     .map { (it as Map<*, *>)["uid"].toString() }
                     .sorted()
 
-                // Si queda 1 o ninguno, no avanzamos turno (la lógica de fin de juego lo manejará)
+
                 if (alivePlayers.isEmpty() || alivePlayers.size == 1) return Transaction.success(data)
 
-                // 2. Calcular el siguiente jugador
+
                 val index = alivePlayers.indexOf(currentUid)
                 val nextIndex = (index + 1) % alivePlayers.size
                 val nextUid = alivePlayers[nextIndex]
 
                 val updated = roomMap.toMutableMap()
 
-                // 3. Cambiar el turno
+
                 updated["turn"] = nextUid
 
-                // 🔥 4. NUEVO: Resetear el temporizador a 60 segundos para el nuevo turno
+
                 updated["timerEnd"] = System.currentTimeMillis() + 90000
 
                 data.value = updated
@@ -135,9 +115,7 @@ class RoomRepository {
     }
 
 
-    // ============================================================
-    // AVANZAR RONDA (MODIFICADO - Req 2)
-    // ============================================================
+
     fun advanceRound(roomId: String, emojis: List<String>, onComplete: (Boolean) -> Unit) {
         roomsRef.child(roomId).runTransaction(object : Transaction.Handler {
 
@@ -146,36 +124,36 @@ class RoomRepository {
                 val roomMap = data.value as? MutableMap<*, *> ?: return Transaction.success(data)
                 val players = roomMap["players"] as? Map<*, *> ?: return Transaction.success(data)
 
-                // ... (Obtener jugadores vivos - sin cambios)
+
                 val aliveList = players.filter { (_, v) ->
                     (v as Map<*, *>)["status"] == "alive"
                 }.keys.toList()
 
                 if (aliveList.isEmpty()) return Transaction.success(data)
 
-                // ... (Mezclar emojis - sin cambios)
+
                 val shuffledEmojis = emojis.shuffled()
 
-                // Crear mapa mutable de jugadores
+
                 val mutablePlayers = players.mapValues { (uid, p) ->
                     val pm = (p as Map<*, *>).toMutableMap()
 
                     if (uid in aliveList) {
-                        // Reasignar emoji
+
                         val newEmoji = shuffledEmojis[aliveList.indexOf(uid) % shuffledEmojis.size]
                         pm["emojiAssigned"] = newEmoji
 
-                        // 👈 AÑADIDO: Resetear el estado de "ha jugado"
+
                         pm["hasGuessed"] = false
 
                     } else {
-                        // Asegurarse de que los jugadores no vivos también lo tengan en false
+
                         pm["hasGuessed"] = false
                     }
                     pm
                 }.toMutableMap()
 
-                // ... (Subir ronda - sin cambios)
+
                 val currentRound = when (val r = roomMap["round"]) {
                     is Long -> r
                     is Int -> r.toLong()

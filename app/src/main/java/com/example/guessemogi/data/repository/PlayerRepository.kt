@@ -1,5 +1,6 @@
 package com.example.guessemogi.data.repository
 
+import com.example.guessemogi.data.model.Constants
 import com.example.guessemogi.data.model.Player
 import com.google.firebase.database.*
 
@@ -7,9 +8,7 @@ class PlayerRepository {
     private val db = FirebaseDatabase.getInstance().reference
     private val roomsRef = db.child("rooms")
 
-    // ============================================================
-    // UNIRSE A SALA - CON ASIGNACIÓN AUTOMÁTICA DE EMOJI
-    // ============================================================
+
     fun joinRoom(roomId: String, player: Player, onComplete: (Boolean) -> Unit) {
         val roomRef = roomsRef.child(roomId)
 
@@ -17,32 +16,30 @@ class PlayerRepository {
             override fun doTransaction(data: MutableData): Transaction.Result {
                 val roomMap = (data.value as? Map<*, *>)?.toMutableMap() as MutableMap<String, Any>
 
-                // Verificar que la sala existe y está en espera
+
                 if (roomMap["status"] != "waiting") {
                     return Transaction.abort()
                 }
 
                 val players = roomMap["players"] as? MutableMap<String, Any> ?: mutableMapOf()
 
-                // Lista de emojis (misma que en CreateRoomViewModel)
-                val emojis = listOf(
-                    "😀", "😂", "😍", "🤔", "😎", "😭", "😡", "🥳", "🤯", "😴"
-                )
 
-                // Contar jugadores vivos para asignar emoji
+                val emojis = Constants.EMOJI_LIST
+
+
                 val aliveCount = players.values.count {
                     (it as? Map<*, *>)?.get("status") == "alive"
                 }
 
-                // Asignar emoji rotando por la lista
+
                 val assignedEmoji = emojis[aliveCount % emojis.size]
 
-                // Crear el jugador con emoji asignado
+
                 val playerMap = mapOf(
                     "uid" to player.uid,
                     "name" to player.name,
                     "status" to "alive",
-                    "emojiAssigned" to assignedEmoji  // 👈 EMOJI ASIGNADO AL UNIRSE
+                    "emojiAssigned" to assignedEmoji
                 )
 
                 players[player.uid] = playerMap
@@ -58,9 +55,7 @@ class PlayerRepository {
         })
     }
 
-    // ============================================================
-    // LISTENER DE JUGADORES
-    // ============================================================
+
     fun listenPlayers(
         roomId: String,
         onPlayers: (Map<String, Player>) -> Unit
@@ -90,9 +85,7 @@ class PlayerRepository {
             .removeEventListener(listener)
     }
 
-    // ============================================================
-    // ADIVINAR
-    // ============================================================
+
     fun submitGuess(
         roomId: String,
         guesserUid: String,
@@ -104,26 +97,26 @@ class PlayerRepository {
         playersRef.runTransaction(object : Transaction.Handler {
 
             override fun doTransaction(mutableData: MutableData): Transaction.Result {
-                // Hacemos un mapa mutable para poder modificarlo
+
                 val playersMap = mutableData.value as? Map<*, *> ?: return Transaction.success(mutableData)
                 val newMap = playersMap.toMutableMap()
 
-                // Obtener el jugador que adivina
+
                 val playerMap = playersMap[guesserUid] as? Map<*, *>
                 val updatedPlayer = playerMap?.toMutableMap() ?: mutableMapOf()
 
                 val assignedEmoji = playerMap?.get("emojiAssigned") as? String
                 val correct = assignedEmoji == targetEmoji
 
-                // Marcar que ya ha jugado
+
                 updatedPlayer["hasGuessed"] = true // 👈 AÑADIDO: Marcar como "jugado"
 
                 if (!correct) {
-                    // Si es incorrecto, eliminarlo
+
                     updatedPlayer["status"] = "eliminated"
                 }
 
-                // Volver a poner el jugador actualizado en el mapa
+
                 newMap[guesserUid] = updatedPlayer
                 mutableData.value = newMap
 
@@ -135,14 +128,14 @@ class PlayerRepository {
                 committed: Boolean,
                 currentData: DataSnapshot?
             ) {
-                // La lógica de onResult se basa en el estado *después* de la transacción
+
                 val players = currentData?.children
                     ?.mapNotNull { it.getValue(Player::class.java) }
                     ?: emptyList()
 
                 val player = players.find { it.uid == guesserUid }
 
-                // Devuelve "true" si el jugador sigue vivo
+
                 onResult(player?.status == "alive")
             }
         })
