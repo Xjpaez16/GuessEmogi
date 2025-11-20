@@ -42,10 +42,10 @@ fun WaitingRoomScreen(
                     .padding(top = 60.dp, start = 16.dp, end = 16.dp),
                 verticalArrangement = Arrangement.Top
             ) {
-                // Información de sala y host (más compacta y contrastante)
+
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFFFC107).copy(alpha = 0.85f) // amarillo semi-transparente
+                        containerColor = Color(0xFFFFC107).copy(alpha = 0.85f)
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -54,7 +54,7 @@ fun WaitingRoomScreen(
                         Text(
                             "Sala: $roomId",
                             style = MaterialTheme.typography.titleMedium,
-                            color = Color(0xFF0D47A1) // azul oscuro para contraste
+                            color = Color(0xFF0D47A1)
                         )
                         Spacer(Modifier.height(2.dp))
                         Text(
@@ -67,7 +67,7 @@ fun WaitingRoomScreen(
 
                 Spacer(Modifier.height(12.dp))
 
-                // Lista de jugadores
+
                 Text(
                     "Jugadores:",
                     style = MaterialTheme.typography.titleSmall,
@@ -76,7 +76,7 @@ fun WaitingRoomScreen(
                 Spacer(Modifier.height(4.dp))
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFF1976D2).copy(alpha = 0.3f) // azul claro transparente
+                        containerColor = Color(0xFF1976D2).copy(alpha = 0.3f)
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -99,8 +99,7 @@ fun WaitingRoomScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                // Botón o mensaje de espera
-                // Botón de iniciar partida centrado
+
                 if (room?.hostId == username) {
                     Box(
                         modifier = Modifier.fillMaxWidth(),

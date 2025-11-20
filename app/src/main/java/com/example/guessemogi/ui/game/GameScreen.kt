@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.example.guessemogi.R // Necesario para acceder a R.drawable
 
 
-// Componente para el fondo de la partida
+
 @Composable
 fun BackgroundScreen(backgroundResId: Int, content: @Composable () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -73,7 +73,7 @@ fun GameScreen(
     val iAmAlive = me?.status == "alive"
     val iHaveGuessed = me?.hasGuessed == true
 
-    // Resetear 'info' y 'selected' cuando cambia la ronda
+    // Reset 'info' and 'selected' when the round changes
     LaunchedEffect(currentRound) {
         if (currentRound > 0) {
             info = "🔄 ¡Nueva ronda $currentRound! ¡A adivinar!"
@@ -81,34 +81,30 @@ fun GameScreen(
         }
     }
 
-    // ⏰ Lógica de la cuenta regresiva y DETECCIÓN DE TIMEOUT
-    LaunchedEffect(room?.timerEnd, room?.turn) { // Agregamos room.turn para reiniciar si cambia el turno
+    // Countdown and TIMEOUT
+    LaunchedEffect(room?.timerEnd, room?.turn) {
         val timerEnd = room?.timerEnd ?: return@LaunchedEffect
 
-        // 1. Bucle del temporizador visual
+
         while (System.currentTimeMillis() < timerEnd) {
             val remainingMillis = timerEnd - System.currentTimeMillis()
             remainingTimeText = formatTime(remainingMillis)
             delay(1000L)
         }
 
-        // 2. Cuando el bucle termina, el tiempo llegó a 0
+
         remainingTimeText = "00:00"
 
-        // 3. VERIFICACIÓN CRÍTICA (Paso 3):
-        // Si el tiempo acabó, es MI turno, y estoy vivo...
-        if (room?.turn == username && iAmAlive && !iHaveGuessed) {
-            // Actualizamos el mensaje en pantalla para que el usuario sepa que perdió
-            info = "⌛ ¡Tiempo agotado! No seleccionaste nada (Eliminado)."
 
-            // Llamamos a la función del ViewModel (Paso 2) que enviará "TIMEOUT_FAILURE"
-            // y nos marcará como eliminados en la base de datos.
+        if (room?.turn == username && iAmAlive && !iHaveGuessed) {
+            info = "¡Tiempo agotado! No seleccionaste nada (Eliminado)."
+
             vm.checkTimerEndAndAdvance(username)
         }
     }
 
 
-    // 🎯 Detección automática de fin de ronda y ganador
+    // End of the round and winner
     LaunchedEffect(players, currentRound) {
         if (currentRound == 0L) return@LaunchedEffect
 
@@ -125,13 +121,13 @@ fun GameScreen(
         val allAliveHaveGuessed = alivePlayers.isNotEmpty() && alivePlayers.all { it.hasGuessed }
 
         if (allAliveHaveGuessed) {
-            info = "⏳ Todos jugaron - Nueva ronda en 2 segundos..."
+            info = "Todos jugaron - Nueva ronda en 2 segundos..."
             delay(2000)
             vm.nextRound(roomId)
         }
     }
 
-    // Usamos el componente BackgroundScreen con la imagen indicada
+
     BackgroundScreen(backgroundResId = R.drawable.polar) {
         Column(
             modifier = Modifier
@@ -140,7 +136,7 @@ fun GameScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // --- TÍTULO DE LA PARTIDA Y TEMPORIZADOR ---
+
             GameHeader(
                 roomId = roomId,
                 round = currentRound,
@@ -150,11 +146,11 @@ fun GameScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // --- LISTA DE JUGADORES (Tarjetas individuales) ---
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 200.dp), // Limitar altura para dejar espacio al chat
+                    .heightIn(max = 200.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(players.sortedBy { it.name }) { player ->
@@ -164,21 +160,21 @@ fun GameScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // --- SECCIÓN DE ACCIÓN/INFO ---
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    // Mensaje de estado
+
                     Text(
                         text = info ?: "",
                         style = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onSurface),
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
-                    // Lógica de turno y adivinanza
+
                     if (iAmAlive && isMyTurn && !iHaveGuessed) {
                         GuessingSection(
                             emojis = emojis,
@@ -206,7 +202,7 @@ fun GameScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // --- SECCIÓN DE CHAT (Ocupa el espacio restante) ---
+
             Card(
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
@@ -220,25 +216,21 @@ fun GameScreen(
                         vm.sendMessage(roomId, username, chatText)
                         chatText = ""
                     },
-                    modifier = Modifier.fillMaxSize() // El Column interno usará este modifier
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
     }
 }
 
-// =================================================================
-// COMPONENTES DE ESTILO
-// =================================================================
 
-// 1. Encabezado de la partida (Timer y Título)
 @Composable
 fun GameHeader(roomId: String, round: Long, remainingTimeText: String, onExit: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Título de la partida
+
         Text(
             text = "Game",
             style = MaterialTheme.typography.headlineLarge,
@@ -247,7 +239,7 @@ fun GameHeader(roomId: String, round: Long, remainingTimeText: String, onExit: (
 
         Spacer(Modifier.height(16.dp))
 
-        // Temporizador (Estilo destacado, similar al diseño)
+
         Card(
             modifier = Modifier.fillMaxWidth(0.7f),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
@@ -267,7 +259,7 @@ fun GameHeader(roomId: String, round: Long, remainingTimeText: String, onExit: (
 
         Spacer(Modifier.height(16.dp))
 
-        // Ronda e ícono de salir (Añadido para mantener funcionalidad)
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -288,40 +280,39 @@ fun GameHeader(roomId: String, round: Long, remainingTimeText: String, onExit: (
     }
 }
 
-// 2. Tarjeta individual de jugador
-// 2. Tarjeta individual de jugador
+
 @Composable
 fun PlayerCard(player: Player, isCurrentPlayer: Boolean) {
-    // Colores distintivos: Azul claro si soy yo, blanco translúcido si son otros
+
     val backgroundColor = if (isCurrentPlayer)
         MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
     else
-        Color.White.copy(alpha = 0.8f) // Aumenté la opacidad para que se lea mejor
+        Color.White.copy(alpha = 0.8f)
 
     val contentColor = if (isCurrentPlayer)
         MaterialTheme.colorScheme.onPrimary
     else
-        Color.Black // Texto negro para los otros jugadores para mejor contraste
+        Color.Black
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp), // Un poco de espacio vertical entre tarjetas
+            .padding(vertical = 4.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
             modifier = Modifier
-                .padding(12.dp) // Padding interno un poco más compacto
+                .padding(12.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // IZQUIERDA: Nombre y Estado
+
             Row(verticalAlignment = Alignment.CenterVertically) {
 
-                // 1. Emoji o Identificador
+
                 val emojiShown = if (isCurrentPlayer) "" else (player.emojiAssigned ?: "❓")
                 Text(
                     text = emojiShown,
@@ -329,9 +320,9 @@ fun PlayerCard(player: Player, isCurrentPlayer: Boolean) {
                     modifier = Modifier.padding(end = 12.dp)
                 )
 
-                // 2. Columna con Nombre y Estado
+
                 Column {
-                    // AQUI ESTABA FALTANDO EL NOMBRE:
+
                     Text(
                         text = if (isCurrentPlayer) "${player.name} (Tú)" else player.name,
                         style = MaterialTheme.typography.titleMedium,
@@ -339,7 +330,7 @@ fun PlayerCard(player: Player, isCurrentPlayer: Boolean) {
                         color = contentColor
                     )
 
-                    // Estado (Vivo/Eliminado)
+
                     val statusText = if (player.status == "alive") "Vivo" else "Eliminado 💀"
                     val statusColor = if (player.status == "alive")
                         Color(0xFF2E7D32) // Verde oscuro
@@ -354,7 +345,7 @@ fun PlayerCard(player: Player, isCurrentPlayer: Boolean) {
                 }
             }
 
-            // DERECHA: Indicador si ya jugó esta ronda
+
             if (player.hasGuessed == true && player.status == "alive") {
                 Text(
                     text = "✅ Listo",
@@ -368,7 +359,7 @@ fun PlayerCard(player: Player, isCurrentPlayer: Boolean) {
 }
 
 
-// 3. Sección de Adivinar (GuessingSection)
+
 @Composable
 fun GuessingSection(
     emojis: List<String>,
@@ -396,7 +387,7 @@ fun GuessingSection(
     }
 }
 
-// 4. Selector de Emojis (EmojiSelector)
+
 @Composable
 fun EmojiSelector(
     emojis: List<String>,
@@ -416,7 +407,7 @@ fun EmojiSelector(
                     containerColor = if (selected == emoji) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surfaceVariant
                 ),
                 elevation = CardDefaults.cardElevation(if (selected == emoji) 8.dp else 2.dp),
-                modifier = Modifier.size(55.dp) // Tamaño fijo para emojis
+                modifier = Modifier.size(55.dp)
             ) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     Text(
@@ -430,7 +421,7 @@ fun EmojiSelector(
 }
 
 
-// 5. Sección de Chat
+
 @Composable
 fun ChatSection(
     messages: List<ChatMessage>,
@@ -444,20 +435,20 @@ fun ChatSection(
         Text("Chat", style = MaterialTheme.typography.titleMedium, color = Color.Black)
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Black.copy(alpha = 0.5f))
 
-        // Lista de mensajes (scrollable)
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
                 .padding(vertical = 8.dp),
-            reverseLayout = true // Para que los mensajes nuevos aparezcan abajo
+            reverseLayout = true
         ) {
             items(messages.reversed()) { msg ->
                 val sender = players.find { it.uid == msg.fromUid }
                 val senderName = sender?.name ?: msg.fromUid
                 val isMe = sender?.uid == msg.fromUid
 
-                // Estilo de burbuja de chat
+
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = if (isMe) Alignment.End else Alignment.Start
@@ -473,7 +464,7 @@ fun ChatSection(
                             containerColor = if (isMe) MaterialTheme.colorScheme.tertiary else Color.Gray.copy(alpha = 0.4f),
                             contentColor = Color.White
                         ),
-                        modifier = Modifier.widthIn(max = 250.dp) // Ancho máximo
+                        modifier = Modifier.widthIn(max = 250.dp)
                     ) {
                         Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
                             Text(
@@ -489,7 +480,7 @@ fun ChatSection(
             }
         }
 
-        // Campo de entrada de chat, anclado abajo
+
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
                 value = chatText,
@@ -512,9 +503,7 @@ fun ChatSection(
     }
 }
 
-// =================================================================
-// HELPERS (Mantienen la funcionalidad)
-// =================================================================
+
 
 private fun formatTime(millis: Long): String {
     if (millis <= 0) return "00:00"

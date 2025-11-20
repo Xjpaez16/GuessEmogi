@@ -24,12 +24,12 @@ fun HomeScreen(
     val userId = vm.getCurrentUserId()
 
     BackgroundScreen(backgroundResId = R.drawable.berriondo) {
-        // Box para centrar la Card
+
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            // Card semitransparente
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth(0.9f)

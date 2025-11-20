@@ -25,12 +25,12 @@ fun JoinRoomScreen(
     val error by remember { vm.error }
 
     BackgroundScreen(backgroundResId = R.drawable.bob) {
-        // Box para centrar la Card
+
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            // Card semitransparente
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth(0.9f)

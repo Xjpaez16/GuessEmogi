@@ -27,15 +27,15 @@ fun CreateRoomScreen(
     BackgroundScreen(backgroundResId = R.drawable.minion) {
         Box(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.TopCenter // alineamos arriba
+            contentAlignment = Alignment.TopCenter
         ) {
-            // Card amarilla sobre la parte superior de la imagen (minion)
+
             Card(
                 modifier = Modifier
                     .padding(top = 60.dp)
                     .width(280.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFFFEB3B).copy(alpha = 0.7f) // amarillo con 70% de opacidad
+                    containerColor = Color(0xFFFFEB3B).copy(alpha = 0.7f)
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
