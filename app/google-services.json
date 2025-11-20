@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "473947383040",
+    "firebase_url": "https://guessemogi-default-rtdb.firebaseio.com",
+    "project_id": "guessemogi",
+    "storage_bucket": "guessemogi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:473947383040:android:386ead7c59b84213573fe5",
+        "android_client_info": {
+          "package_name": "com.example.guessemogi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWZfluqL55ds-aXsj_oO7jcqTQnzM1pPY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
