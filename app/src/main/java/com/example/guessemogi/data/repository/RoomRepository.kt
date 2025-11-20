@@ -166,7 +166,7 @@ class RoomRepository {
                 newMap["round"] = newRound
                 newMap["players"] = mutablePlayers
                 newMap["timerEnd"] = System.currentTimeMillis() + 90000
-                newMap["turn"] = aliveList.first() // Resetear turno
+                newMap["turn"] = aliveList.first() //reset turn
                 newMap["hasStarted"] = true
                 newMap["status"] = "playing"
 
