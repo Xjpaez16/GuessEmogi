@@ -4,7 +4,7 @@ package com.example.guessemogi.viewmodel.authviewmodel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.guessemogi.data.repository.AuthRepository
-import com.google.firebase.auth.FirebaseAuthException // Necesario para identificar errores de auth
+import com.google.firebase.auth.FirebaseAuthException
 
 class AuthViewModel(
 
@@ -18,12 +18,12 @@ class AuthViewModel(
     fun onEmailChange(value: String) { email.value = value }
     fun onPasswordChange(value: String) { password.value = value }
 
-    // Función de ayuda para traducir errores comunes de Firebase
+    // Help function for translating common Firebase errors
     private fun translateAuthError(error: String?): String {
         if (error == null) return "Error desconocido. Por favor, revisa tu conexión."
 
         return when {
-            // Códigos de error de Firebase Authentication (puede variar según el repo)
+
             error.contains("wrong-password", ignoreCase = true) -> "Contraseña incorrecta."
             error.contains("user-not-found", ignoreCase = true) -> "No existe un usuario con este correo electrónico."
             error.contains("invalid-email", ignoreCase = true) -> "El formato del correo es inválido."
@@ -36,7 +36,7 @@ class AuthViewModel(
 
     fun login(onSuccess: () -> Unit) {
         loading.value = true
-        errorMessage.value = null // Limpiar error anterior
+        errorMessage.value = null
         authRepository.loginUser(email.value, password.value) { ok, error ->
             loading.value = false
             if (ok) onSuccess() else errorMessage.value = translateAuthError(error)
@@ -45,7 +45,7 @@ class AuthViewModel(
 
     fun register(onSuccess: () -> Unit) {
         loading.value = true
-        errorMessage.value = null // Limpiar error anterior
+        errorMessage.value = null
         authRepository.registerUser(email.value, password.value) { ok, error ->
             loading.value = false
             if (ok) onSuccess() else errorMessage.value = translateAuthError(error)
