@@ -10,9 +10,10 @@ class AuthRepository(
 ) {
     private val auth =  FirebaseAuth.getInstance()
 
-    // Función auxiliar para obtener el nombre de usuario (parte del email antes del @)
+
     private fun getUsernameFromEmail(email: String): String {
-        return email.substringBefore('@')
+        return email.substringBefore('@') //get username from email
+
     }
 
     fun registerUser(
@@ -26,12 +27,12 @@ class AuthRepository(
                     val user = auth.currentUser
                     val username = getUsernameFromEmail(email)
 
-                    // 1. Crear la solicitud de cambio de perfil
+
                     val profileUpdates = UserProfileChangeRequest.Builder()
                         .setDisplayName(username)
                         .build()
 
-                    // 2. Actualizar el perfil del usuario
+
                     user?.updateProfile(profileUpdates)
                         ?.addOnCompleteListener { updateTask ->
                             if (updateTask.isSuccessful) {
@@ -39,7 +40,7 @@ class AuthRepository(
                                 onResult(true, null)
                             } else {
                                 Log.e("AuthRepository", "Error al establecer display name: ${updateTask.exception?.message}")
-                                // Aunque falle la actualización del nombre, el usuario se creó.
+
                                 onResult(true, null)
                             }
                         }
@@ -49,7 +50,7 @@ class AuthRepository(
             }
     }
 
-    // Nota: Para el login, el display name ya debería existir si el registro fue exitoso.
+
     fun loginUser(
         email: String,
         password: String,
@@ -65,7 +66,7 @@ class AuthRepository(
             }
     }
 
-    // Modificamos getCurrentUserId para priorizar el displayName si está disponible
+
     fun getCurrentUserId(): String? {
         return auth.currentUser?.displayName ?: auth.currentUser?.uid
     }

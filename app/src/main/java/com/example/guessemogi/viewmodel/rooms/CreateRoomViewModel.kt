@@ -19,7 +19,7 @@ class CreateRoomViewModel() : ViewModel() {
         generatedRoomId.value = code
     }
 
-    // MODIFICADO (Req 5): Simplificado
+
     fun createRoomWithHost(username: String) {
         val id = generatedRoomId.value.ifBlank {
             generateRoomId()
@@ -28,7 +28,7 @@ class CreateRoomViewModel() : ViewModel() {
 
         val hostPlayer = Player(uid = username, name = username)
 
-        // Llamamos solo a createRoom. Ya no se necesita assignEmojis.
+
         roomRepo.createRoom(id, hostPlayer) { success ->
             if (success) {
                 println("Sala creada y emoji de host asignado correctamente.")
