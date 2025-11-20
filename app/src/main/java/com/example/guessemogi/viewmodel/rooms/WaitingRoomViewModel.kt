@@ -21,12 +21,12 @@ class WaitingRoomViewModel(
 
     fun listen(roomId: String) {
 
-        // LISTENER DE JUGADORES
+
         playersListener = playerRepo.listenPlayers(roomId) { map ->
             players.value = map.values.toList()
         }
 
-        // LISTENER DE ROOM
+
         roomListener = roomRepo.listenRoom(roomId) { room ->
             roomState.value = room
         }
